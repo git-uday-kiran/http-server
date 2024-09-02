@@ -1,16 +1,31 @@
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.util.Map;
 
 public class Main {
 	public static void main(String[] args) {
-		System.out.println("Logs from your program will appear here!");
+		System.out.println("Application started!");
+		HttpServer.runOn(4221, Main::handleSocket);
+	}
 
-		try (ServerSocket serverSocket = new ServerSocket(4221)) {
-			serverSocket.setReuseAddress(true);
-			serverSocket.accept();
-			System.out.println("accepted new connection");
+	public static void handleSocket(Socket socket) {
+		System.out.println("New connection from " + socket.getRemoteSocketAddress());
+		try {
+			OutputStream outputStream = socket.getOutputStream();
+			String response = HttpResponseBuilder.create()
+				.statusLine(1.1D, 200, "Ok")
+				.lineBreak()
+				.body(Map.of("Hello", "World"))
+				.lineBreak()
+				.getResponse();
+			System.out.println(response);
+			outputStream.write(response.getBytes());
+			outputStream.flush();
+			socket.close();
 		} catch (IOException e) {
-			System.out.println("IOException: " + e.getMessage());
+			throw new RuntimeException(e);
 		}
 	}
+
 }
