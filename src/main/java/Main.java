@@ -13,7 +13,7 @@ public class Main {
 		try {
 			OutputStream outputStream = socket.getOutputStream();
 			String response = HttpResponseBuilder.create()
-				.statusLine(1.1D, 200, "Ok")
+				.statusLine(1.1D, 200, "OK")
 				.lineBreak()
 //				.body(Map.of("Hello", "World"))
 				.lineBreak()
