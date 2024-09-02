@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Map;
 
 public class Main {
 	public static void main(String[] args) {
@@ -19,7 +18,6 @@ public class Main {
 //				.body(Map.of("Hello", "World"))
 				.lineBreak()
 				.getResponse();
-			System.out.println(response);
 			outputStream.write(response.getBytes());
 			outputStream.flush();
 			socket.close();
