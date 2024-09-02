@@ -16,7 +16,7 @@ public class Main {
 			String response = HttpResponseBuilder.create()
 				.statusLine(1.1D, 200, "Ok")
 				.lineBreak()
-				.body(Map.of("Hello", "World"))
+//				.body(Map.of("Hello", "World"))
 				.lineBreak()
 				.getResponse();
 			System.out.println(response);
