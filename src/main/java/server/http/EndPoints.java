@@ -6,7 +6,9 @@ import org.springframework.stereotype.Component;
 public class EndPoints {
 
 	HttpResponse endPoint1(HttpRequest request, String data) {
-		return HttpResponse.ok().withBody(data);
+		return HttpResponse.ok()
+			.withHeader("Content-Type", "text/plain")
+			.withBody(data);
 	}
 
 }

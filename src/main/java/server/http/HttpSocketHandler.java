@@ -77,11 +77,11 @@ public class HttpSocketHandler {
 		try {
 			var reader = new BufferedReader(new InputStreamReader(getRequestLineAndHeadersStream(inputStream)));
 
-			String requestLine = URLDecoder.decode(reader.readLine(), StandardCharsets.UTF_8);
+			String requestLine = reader.readLine();
 			String[] split = requestLine.split(" ");
 
 			HttpMethod method = HttpMethod.valueOf(split[0]);
-			String url = split[1];
+			String url = URLDecoder.decode(split[1], StandardCharsets.UTF_8);
 			double httpVersion = Double.parseDouble(split[2].substring("HTTP/".length()));
 
 			Map<String, String> headers = readHeaders(reader);
