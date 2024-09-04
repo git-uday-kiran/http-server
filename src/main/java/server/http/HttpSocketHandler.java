@@ -5,6 +5,8 @@ import server.http.read_writers.JsonBodyWriter;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,11 +17,11 @@ import java.util.StringJoiner;
 public class HttpSocketHandler {
 
 	private final String CRLF = "\r\n";
-	private final HttpRequestHandler urlHandler;
+	private final HttpRequestHandler requestHandler;
 	private final JsonBodyWriter jsonBodyWriter;
 
 	public HttpSocketHandler(HttpRequestHandler urlHandler, JsonBodyWriter jsonBodyWriter) {
-		this.urlHandler = urlHandler;
+		this.requestHandler = urlHandler;
 		this.jsonBodyWriter = jsonBodyWriter;
 	}
 
@@ -30,7 +32,7 @@ public class HttpSocketHandler {
 			if (inputStream.available() == 0) return;
 
 			Optional<HttpRequest> request = readRequest(inputStream);
-			HttpResponse response = request.isPresent() ? (urlHandler.handle(request.get())) : parsingErrorResponse();
+			HttpResponse response = request.isPresent() ? (requestHandler.handle(request.get())) : parsingErrorResponse();
 			writeResponse(response, outputStream);
 
 		} catch (Exception exception) {
@@ -75,7 +77,7 @@ public class HttpSocketHandler {
 		try {
 			var reader = new BufferedReader(new InputStreamReader(getRequestLineAndHeadersStream(inputStream)));
 
-			String requestLine = reader.readLine();
+			String requestLine = URLDecoder.decode(reader.readLine(), StandardCharsets.UTF_8);
 			String[] split = requestLine.split(" ");
 
 			HttpMethod method = HttpMethod.valueOf(split[0]);
