@@ -11,4 +11,11 @@ public class EndPoints {
 			.withBody(data);
 	}
 
+	HttpResponse endPointStage5(HttpRequest request) {
+		String userAgent = request.headers().get("User-Agent");
+		return HttpResponse.ok()
+			.withHeader("Content-Type", "text/plain")
+			.withBody(userAgent);
+	}
+
 }

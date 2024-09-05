@@ -18,11 +18,10 @@ public class HttpRequestHandler {
 	}
 
 	public HttpResponse handleRequest(HttpRequest request, PathDetail pathDetail) {
-		String testEndPoint = "/echo/{string}";
+		String testEndPoint = "/user-agent";
 
 		if (pathDetail.isMatched(testEndPoint)) {
-			String pathVariableValue = pathDetail.getPathVariableValue(testEndPoint, "{string}").orElse("");
-			return endPoints.endPointStage4(pathVariableValue);
+			return endPoints.endPointStage5(request);
 		}
 
 		return HttpResponse.notFound();
