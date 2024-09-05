@@ -82,4 +82,8 @@ public class HttpResponse {
 		return new HttpResponse(HttpStatus.NOT_FOUND);
 	}
 
+	public static HttpResponse internalServerError() {
+		return new HttpResponse(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
 }

@@ -42,6 +42,7 @@ public class PathDetail {
 	}
 
 	public Optional<String> getPathVariableValue(String endPoint, String pathVariable) {
+		if (!isMatched(endPoint)) return Optional.empty();
 		List<String> endPointPathVariables = readPathVariables(endPoint);
 		int index = endPointPathVariables.indexOf(pathVariable);
 		if (index != -1 && index < pathVariables.size())
