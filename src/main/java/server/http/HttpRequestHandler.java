@@ -18,13 +18,7 @@ public class HttpRequestHandler {
 	}
 
 	public HttpResponse handleRequest(HttpRequest request, PathDetail pathDetail) {
-		String testEndPoint = "/user-agent";
-
-		if (pathDetail.isMatched(testEndPoint)) {
-			return endPoints.endPointStage5(request);
-		}
-
-		return HttpResponse.notFound();
+		return HttpResponse.ok();
 	}
 
 }
