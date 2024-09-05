@@ -6,8 +6,11 @@ import server.http.read_writers.JsonBodyWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 
 @Component
@@ -18,7 +21,6 @@ public class EndPoints {
 	private final JsonBodyWriter jsonBodyWriter;
 
 	HttpResponse downloadFile(String fileName) throws IOException {
-		System.out.println("File: " + fileName);
 		Optional<File> opFile = findFile(fileName);
 		if (opFile.isPresent()) {
 			File file = opFile.get();
@@ -28,6 +30,19 @@ public class EndPoints {
 				.withBody(bytes);
 		}
 		return HttpResponse.notFound();
+	}
+
+	HttpResponse uploadFile(HttpRequest request, String fileName) throws IOException {
+		String filePath = globalThings.directory.getPath() + File.separator + fileName;
+		Path path = (new File(filePath)).toPath();
+
+		try (InputStream content = request.content()) {
+			OpenOption[] options = {StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING};
+			Files.write(path, content.readAllBytes(), options);
+		}
+
+		return HttpResponse.of(HttpStatus.CREATED)
+			.withBody("Created file with path " + filePath);
 	}
 
 	Optional<File> findFile(String fileName) {

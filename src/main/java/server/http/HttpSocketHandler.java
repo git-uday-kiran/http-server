@@ -85,7 +85,8 @@ public class HttpSocketHandler {
 			double httpVersion = Double.parseDouble(split[2].substring("HTTP/".length()));
 
 			Map<String, String> headers = readHeaders(reader);
-			return Optional.of(new HttpRequest(url, httpVersion, method, headers, inputStream));
+			InputStream requestBody = readRequestBody(headers, inputStream);
+			return Optional.of(new HttpRequest(url, httpVersion, method, headers, requestBody));
 
 		} catch (Exception exception) {
 			exception.printStackTrace();
@@ -103,6 +104,11 @@ public class HttpSocketHandler {
 			headers.put(key, value);
 		}
 		return headers;
+	}
+
+	private InputStream readRequestBody(Map<String, String> headers, InputStream inputStream) throws IOException {
+		int contentLength = Integer.parseInt(headers.getOrDefault("Content-Length", "0").trim());
+		return new ByteArrayInputStream(inputStream.readNBytes(contentLength));
 	}
 
 	private InputStream getRequestLineAndHeadersStream(InputStream inputStream) throws IOException {

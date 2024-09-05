@@ -24,15 +24,25 @@ public class HttpRequestHandler {
 
 	public HttpResponse handleRequest(HttpRequest request, PathDetail pathDetail) {
 		try {
-			String endPoint = "/files/{fileName}";
-			Optional<String> opFileName = pathDetail.getPathVariableValue(endPoint, "{fileName}");
-			if (opFileName.isPresent()) {
-				return endPoints.downloadFile(opFileName.get());
-			}
+			return handleEndPoints(request, pathDetail);
 		} catch (Exception exception) {
 			log.error("Error while handling request", exception);
-			return HttpResponse.internalServerError()
-				.withBody(jsonBodyWriter, Map.of("Error", exception.getMessage()));
+			Map<String, Object> json = Map.of("Error", exception.getMessage());
+			return HttpResponse.internalServerError().withBody(jsonBodyWriter, json);
+		}
+	}
+
+	public HttpResponse handleEndPoints(HttpRequest request, PathDetail pathDetail) throws Exception {
+		String endPoint = "/files/{fileName}";
+		Optional<String> opFileName = pathDetail.getPathVariableValue(endPoint, "{fileName}");
+		if (opFileName.isPresent()) {
+			String fileName = opFileName.get();
+			if (request.method() == HttpMethod.GET) {
+				return endPoints.downloadFile(fileName);
+			}
+			if (request.method() == HttpMethod.POST) {
+				return endPoints.uploadFile(request, fileName);
+			}
 		}
 		return HttpResponse.notFound();
 	}
