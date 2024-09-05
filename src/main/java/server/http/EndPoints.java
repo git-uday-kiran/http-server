@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class EndPoints {
 
-	HttpResponse endPoint1(HttpRequest request, String data) {
+	HttpResponse endPointStage4(String data) {
 		return HttpResponse.ok()
 			.withHeader("Content-Type", "text/plain")
 			.withBody(data);

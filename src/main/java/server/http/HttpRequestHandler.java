@@ -22,7 +22,7 @@ public class HttpRequestHandler {
 
 		if (pathDetail.isMatched(testEndPoint)) {
 			String pathVariableValue = pathDetail.getPathVariableValue(testEndPoint, "{string}").orElse("");
-			return endPoints.endPoint1(request, pathVariableValue);
+			return endPoints.endPointStage4(pathVariableValue);
 		}
 
 		return HttpResponse.notFound();
