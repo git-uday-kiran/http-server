@@ -1,5 +1,6 @@
 package server.http;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import server.http.read_writers.JsonBodyWriter;
 
@@ -14,16 +15,12 @@ import java.util.Optional;
 import java.util.StringJoiner;
 
 @Component
+@RequiredArgsConstructor
 public class HttpSocketHandler {
 
 	private final String CRLF = "\r\n";
 	private final HttpRequestHandler requestHandler;
 	private final JsonBodyWriter jsonBodyWriter;
-
-	public HttpSocketHandler(HttpRequestHandler urlHandler, JsonBodyWriter jsonBodyWriter) {
-		this.requestHandler = urlHandler;
-		this.jsonBodyWriter = jsonBodyWriter;
-	}
 
 	public void handle(Socket socket) {
 		try (InputStream inputStream = socket.getInputStream();
@@ -46,12 +43,10 @@ public class HttpSocketHandler {
 	}
 
 	private void writeResponse(HttpResponse response, OutputStream outputStream) throws IOException {
-		byte[] bodyBytes = response.getBody().readAllBytes();
-		response.withHeader("Content-Length", String.valueOf(bodyBytes.length));
-
+		response.withHeader("Content-Length", String.valueOf(response.getContentLength()));
 		writeStatusLine(response, outputStream);
 		writeHeaders(response, outputStream);
-		outputStream.write(bodyBytes);
+		response.getBody().transferTo(outputStream);
 	}
 
 	private void writeStatusLine(HttpResponse response, OutputStream outputStream) throws IOException {

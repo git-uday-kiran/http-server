@@ -2,15 +2,15 @@ package server.http;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import server.http.read_writers.JsonBodyReader;
 import server.http.read_writers.JsonBodyWriter;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -18,7 +18,15 @@ import java.util.Optional;
 public class EndPoints {
 
 	private final GlobalThings globalThings;
+	private final IOStreamUtils ioStreamUtils;
 	private final JsonBodyWriter jsonBodyWriter;
+	private final JsonBodyReader jsonBodyReader;
+
+	HttpResponse test(HttpRequest request, Map<String, Object> body) {
+		System.out.println("Received Body: " + body);
+		return HttpResponse.ok()
+			.withBody("Got it!");
+	}
 
 	HttpResponse downloadFile(String fileName) throws IOException {
 		Optional<File> opFile = findFile(fileName);
@@ -37,8 +45,7 @@ public class EndPoints {
 		Path path = (new File(filePath)).toPath();
 
 		try (InputStream content = request.content()) {
-			OpenOption[] options = {StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING};
-			Files.write(path, content.readAllBytes(), options);
+			Files.write(path, content.readAllBytes(), IOStreamUtils.WRITE_OPTIONS);
 		}
 
 		return HttpResponse.of(HttpStatus.CREATED)
