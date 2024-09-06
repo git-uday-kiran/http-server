@@ -17,8 +17,8 @@ public class JsonBodyReader implements BodyReader<Map<String, Object>> {
 	private final StringBodyReader stringBodyReader;
 
 	@Override
-	public Map<String, Object> read(InputStream inputStream, int noOfBytes) throws IOException {
-		String body = stringBodyReader.read(inputStream, noOfBytes);
+	public Map<String, Object> read(InputStream inputStream) throws IOException {
+		String body = stringBodyReader.read(inputStream);
 		TypeReference<Map<String, Object>> jsonType = new TypeReference<>() {};
 		return objectMapper.readValue(body, jsonType);
 	}

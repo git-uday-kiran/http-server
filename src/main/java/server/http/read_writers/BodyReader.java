@@ -5,5 +5,5 @@ import java.io.InputStream;
 
 public interface BodyReader<T> {
 
-	T read(InputStream inputStream, int noOfBytes) throws IOException;
+	T read(InputStream inputStream) throws IOException;
 }

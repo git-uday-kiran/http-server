@@ -30,6 +30,9 @@ public class HttpResponse {
 		outputStream = ioStreamUtils.outputStream(tempFile);
 	}
 
+	/**
+	 * creates a new input stream and returns it, must be close the stream your self
+	 */
 	public InputStream getBody() {
 		try {
 			outputStream.flush();

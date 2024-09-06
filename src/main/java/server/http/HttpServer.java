@@ -54,7 +54,7 @@ public class HttpServer {
 	private void submitToHandler(Socket socket) {
 		executorService.submit(() -> {
 			log.info("Connection-{} from {}", counter.incrementAndGet(), socket.getRemoteSocketAddress());
-			httpSocketHandler.handle(socket);
+			httpSocketHandler.handleSocket(socket);
 			log.info("Closing connection: {}", socket.getRemoteSocketAddress());
 		});
 	}

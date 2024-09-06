@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Component
 @AllArgsConstructor
-public class EndPoints {
+public class Controller {
 
 	private final GlobalThings globalThings;
 	private final IOStreamUtils ioStreamUtils;
@@ -44,7 +44,7 @@ public class EndPoints {
 		String filePath = globalThings.directory.getPath() + File.separator + fileName;
 		Path path = (new File(filePath)).toPath();
 
-		try (InputStream content = request.content()) {
+		try (InputStream content = request.getContent()) {
 			Files.write(path, content.readAllBytes(), IOStreamUtils.WRITE_OPTIONS);
 		}
 
