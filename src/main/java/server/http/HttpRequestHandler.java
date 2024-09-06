@@ -18,10 +18,11 @@ public class HttpRequestHandler {
 	private final HttpResponseWriter httpResponseWriter;
 	private final JsonBodyWriter jsonBodyWriter;
 
-	public void handle(HttpRequest httpRequest, OutputStream outputStream) throws IOException {
-		HttpResponse response = handle(httpRequest);
-		httpResponseWriter.write(response, outputStream);
-		httpRequest.getContent().close();
+	public void handle(HttpRequest request, OutputStream outputStream) throws IOException {
+		HttpResponse response = handle(request);
+		CompressionScheme[] compressionSchemes = CompressionScheme.fromString(request.getHeaders().get("accept-encoding"));
+		httpResponseWriter.write(response, outputStream, compressionSchemes);
+		request.getContent().close();
 	}
 
 	private HttpResponse handle(HttpRequest request) {

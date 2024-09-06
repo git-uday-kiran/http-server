@@ -14,18 +14,19 @@ public class CompressionUtils {
 	private final IOStreamUtils ioStreamUtils;
 	private final CompressionScheme[] SUPPORTED = {CompressionScheme.GZIP,};
 
-	public InputStream compress(CompressionScheme scheme, InputStream in) {
+	public File compress(CompressionScheme scheme, InputStream in) {
 		if (!isSupported(scheme)) {
 			throw new RuntimeException("%s compression scheme is not supported.".formatted(scheme));
 		}
 		return gzipCompress(in);
 	}
 
-	public InputStream gzipCompress(InputStream in) {
+	public File gzipCompress(InputStream in) {
 		File tempFile = ioStreamUtils.createTempFile();
 		try (var out = new FileOutputStream(tempFile); var gzipOut = new GZIPOutputStream(out)) {
 			in.transferTo(gzipOut);
-			return new FileInputStream(tempFile);
+			gzipOut.flush();
+			return tempFile;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

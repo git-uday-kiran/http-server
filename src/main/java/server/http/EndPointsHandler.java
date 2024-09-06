@@ -21,7 +21,9 @@ public class EndPointsHandler {
 	private final EndPoint[] endPoints = {
 		new EndPoint(List.of("files", "{fileName}"), HttpMethod.GET),
 		new EndPoint(List.of("files", "{fileName}"), HttpMethod.POST),
-		new EndPoint(List.of("test"), HttpMethod.POST)
+		new EndPoint(List.of("test"), HttpMethod.POST),
+		new EndPoint(List.of("test"), HttpMethod.GET),
+		new EndPoint(List.of("echo", "{string}"), HttpMethod.GET),
 	};
 
 	public HttpResponse handleEndPoints(HttpRequest request) throws Exception {
@@ -43,7 +45,18 @@ public class EndPointsHandler {
 		EndPoint testPost = endPoints[2];
 		if (testPost.matches(request)) {
 			Map<String, Object> body = jsonBodyReader.read(request.getContent());
-			return controller.test(request, body);
+			return controller.testPOST(request, body);
+		}
+
+		EndPoint testGET = endPoints[3];
+		if (testGET.matches(request)) {
+			return controller.testGET(request);
+		}
+
+		EndPoint echoString = endPoints[4];
+		if (echoString.matches(request)) {
+			RequestUriDetail uriDetail = echoString.getRequestUriDetail(request);
+			return controller.echoString(uriDetail.getRequiredPathValue("{string}"));
 		}
 
 		return HttpResponse.notFound();

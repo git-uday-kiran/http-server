@@ -1,11 +1,13 @@
 package server.http;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.io.InputStream;
 import java.util.Map;
 
 @Getter
+@ToString
 public class HttpRequest {
 
 	private final String uri;

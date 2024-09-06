@@ -22,10 +22,20 @@ public class Controller {
 	private final JsonBodyWriter jsonBodyWriter;
 	private final JsonBodyReader jsonBodyReader;
 
-	HttpResponse test(HttpRequest request, Map<String, Object> body) {
+	HttpResponse testGET(HttpRequest request) {
+		return HttpResponse.ok()
+			.withBody("Hey it's working...");
+	}
+
+	HttpResponse testPOST(HttpRequest request, Map<String, Object> body) {
 		System.out.println("Received Body: " + body);
 		return HttpResponse.ok()
 			.withBody("Got it!");
+	}
+
+	HttpResponse echoString(String string) {
+		return HttpResponse.ok()
+			.withBody(string);
 	}
 
 	HttpResponse downloadFile(String fileName) throws IOException {

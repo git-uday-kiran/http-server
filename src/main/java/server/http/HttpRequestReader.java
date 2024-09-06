@@ -28,9 +28,7 @@ public class HttpRequestReader {
 			Map<String, String> headers = readHeaders(reader);
 			MediaType contentType = MediaType.fromString(headers.get("content-type"));
 
-			int contentLength = Integer.parseInt(headers.getOrDefault("content-length", "0").trim());
-			InputStream requestBody = readRequestBody(inputStream, contentLength);
-
+			InputStream requestBody = readRequestBody(headers, inputStream);
 			return Optional.of(new HttpRequest(url, method, contentType, headers, requestBody));
 		} catch (Exception exception) {
 			log.error("Reading input stream as http request failed.", exception);
@@ -50,7 +48,8 @@ public class HttpRequestReader {
 		return headers;
 	}
 
-	private InputStream readRequestBody(InputStream inputStream, int contentLength) throws IOException {
+	private InputStream readRequestBody(Map<String, String> headers, InputStream inputStream) throws IOException {
+		int contentLength = Integer.parseInt(headers.getOrDefault("content-length", "0").trim());
 		return new ByteArrayInputStream(inputStream.readNBytes(contentLength));
 	}
 
