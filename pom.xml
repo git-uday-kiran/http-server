@@ -11,8 +11,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>io.codecrafters</groupId>
-    <artifactId>build-your-own-http</artifactId>
+    <groupId>bit-bees</groupId>
+    <artifactId>http-server</artifactId>
     <version>1.0</version>
 
     <properties>
@@ -90,5 +90,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>Http Server</name>
+            <url>https://maven.pkg.github.com/git-uday-kiran/http-server</url>
+        </repository>
+    </distributionManagement>
 
 </project>
