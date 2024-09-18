@@ -48,6 +48,7 @@ public class HttpRequestHandler implements ApplicationContextAware {
 		for (Method method : clazz.getDeclaredMethods()) {
 			if (method.isAnnotationPresent(RequestMapping.class)) {
 				var mapping = method.getAnnotation(RequestMapping.class);
+				method.setAccessible(true);
 				EndPoint endPoint = new EndPointImpl(mapping, method, bean, parser);
 				endPoints.add(endPoint);
 			}
