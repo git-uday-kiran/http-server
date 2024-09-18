@@ -2,6 +2,8 @@ package server.http;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import server.http.annotations.RequestMapping;
+import server.http.annotations.RestController;
 import server.http.read_writers.JsonBodyReader;
 import server.http.read_writers.JsonBodyWriter;
 
@@ -15,6 +17,7 @@ import java.util.Optional;
 
 @Component
 @AllArgsConstructor
+@RestController
 public class Controller {
 
 	private final GlobalThings globalThings;
@@ -22,23 +25,26 @@ public class Controller {
 	private final JsonBodyWriter jsonBodyWriter;
 	private final JsonBodyReader jsonBodyReader;
 
+	@RequestMapping(path = "hit", method = HttpMethod.GET)
 	HttpResponse testGET(HttpRequest request) {
 		return HttpResponse.ok()
 			.withBody("Hey it's working...");
 	}
 
-	HttpResponse testPOST(HttpRequest request, Map<String, Object> body) {
+	@RequestMapping(path = "test/post/", method = HttpMethod.POST, consumes = MediaType.APPLICATION_JSON)
+	HttpResponse testPOST(HttpRequest request, @RequestBody Map<String, Object> body) {
 		System.out.println("Received Body: " + body);
 		return HttpResponse.ok()
 			.withBody("Got it!");
 	}
 
-	HttpResponse echoString(String string) {
-		return HttpResponse.ok()
-			.withBody(string);
+	@RequestMapping(path = "echo/{data}")
+	HttpResponse echoString(@PathVariable String data, @QueryParam String query) {
+		return HttpResponse.ok().withBody("ECHO: " + data + " ? " + query);
 	}
 
-	HttpResponse downloadFile(String fileName) throws IOException {
+	@RequestMapping(path = "test/download/{fileName}")
+	HttpResponse downloadFile(@PathVariable String fileName) throws IOException {
 		Optional<File> opFile = findFile(fileName);
 		if (opFile.isPresent()) {
 			File file = opFile.get();
@@ -50,7 +56,8 @@ public class Controller {
 		return HttpResponse.notFound();
 	}
 
-	HttpResponse uploadFile(HttpRequest request, String fileName) throws IOException {
+	@RequestMapping(path = "test/upload/{fileName}", method = HttpMethod.POST)
+	HttpResponse uploadFile(HttpRequest request, @PathVariable String fileName) throws IOException {
 		String filePath = globalThings.directory.getPath() + File.separator + fileName;
 		Path path = (new File(filePath)).toPath();
 
@@ -62,7 +69,7 @@ public class Controller {
 			.withBody("Created file with path " + filePath);
 	}
 
-	Optional<File> findFile(String fileName) {
+	private Optional<File> findFile(String fileName) {
 		File[] allFiles = globalThings.getDirectory().listFiles();
 		assert allFiles != null;
 		for (File file : allFiles) {

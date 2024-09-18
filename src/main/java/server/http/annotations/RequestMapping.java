@@ -17,8 +17,8 @@ public @interface RequestMapping {
 
 	HttpMethod method() default HttpMethod.GET;
 
-	MediaType[] consumes() default {MediaType.TEXT_PLAIN};
+	MediaType[] consumes() default MediaType.ALL;
 
-	MediaType[] produces() default {MediaType.TEXT_PLAIN};
+	MediaType[] produces() default MediaType.ALL;
 
 }

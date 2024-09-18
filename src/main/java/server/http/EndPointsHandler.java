@@ -1,65 +1,69 @@
 package server.http;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import server.http.read_writers.JsonBodyReader;
-import server.http.read_writers.JsonBodyWriter;
+import server.http.read_writers.BodyReader;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Log4j2
 @Component
-@RequiredArgsConstructor
 public class EndPointsHandler {
 
-	private final Controller controller;
-	private final JsonBodyReader jsonBodyReader;
-	private final JsonBodyWriter jsonBodyWriter;
+	private static final ApplicationContext appCtx = GlobalThings.appCtx;
 
-	private final EndPoint[] endPoints = {
-		new EndPoint(List.of("files", "{fileName}"), HttpMethod.GET),
-		new EndPoint(List.of("files", "{fileName}"), HttpMethod.POST),
-		new EndPoint(List.of("test"), HttpMethod.POST),
-		new EndPoint(List.of("test"), HttpMethod.GET),
-		new EndPoint(List.of("echo", "{string}"), HttpMethod.GET),
-	};
+	public HttpResponse handle(EndPoint endPoint, HttpRequest request) throws Exception {
+		RequestUriDetail uriDetail = endPoint.getRequestUriDetail(request);
 
-	public HttpResponse handleEndPoints(HttpRequest request) throws Exception {
+		Method handlerMethod = endPoint.getHanlderMethod();
+		List<Object> args = getMethodArgsData(request, handlerMethod, uriDetail);
+		Object returnData = handlerMethod.invoke(endPoint.getHandlerController(), args.toArray());
 
-		EndPoint downloadEndpoint = endPoints[0];
-		if (downloadEndpoint.matches(request)) {
-			RequestUriDetail uriDetail = downloadEndpoint.getRequestUriDetail(request);
-			String fileName = uriDetail.getRequiredPathValue("{fileName}");
-			return controller.downloadFile(fileName);
+		return (HttpResponse) returnData;
+	}
+
+	private List<Object> getMethodArgsData(HttpRequest request, Method handlerMethod, RequestUriDetail uriDetail) throws IOException {
+		List<Object> args = new ArrayList<>();
+
+		for (Parameter parameter : handlerMethod.getParameters()) {
+			if (parameter.getType() == HttpRequest.class) {
+				args.add(request);
+
+			} else if (parameter.isAnnotationPresent(RequestBody.class)) {
+				args.add(read(request.getContent(), parameter.getType()));
+
+			} else if (parameter.isAnnotationPresent(PathVariable.class)) {
+				var pathVariable = parameter.getAnnotation(PathVariable.class);
+				String pathVariableName = "{" + (pathVariable.value().isBlank() ? parameter.getName() : pathVariable.value()) + "}";
+				args.add(uriDetail.getRequiredPathValue(pathVariableName));
+
+			} else if (parameter.isAnnotationPresent(QueryParam.class)) {
+				var queryParam = parameter.getAnnotation(QueryParam.class);
+				String queryKeyName = queryParam.value().isBlank() ? parameter.getName() : queryParam.value();
+				args.add(uriDetail.getRequiredQueryValue(queryKeyName));
+
+			} else {
+				throw new UnsupportedOperationException("Can not read to method parameter: " + parameter);
+			}
 		}
 
-		EndPoint uploadEndpoint = endPoints[1];
-		if (uploadEndpoint.matches(request)) {
-			var uriDetail = uploadEndpoint.getRequestUriDetail(request);
-			var fileName = uriDetail.getRequiredPathValue("{fileName}");
-			return controller.uploadFile(request, fileName);
-		}
+		return args;
+	}
 
-		EndPoint testPost = endPoints[2];
-		if (testPost.matches(request)) {
-			Map<String, Object> body = jsonBodyReader.read(request.getContent());
-			return controller.testPOST(request, body);
+	private <T> Object read(InputStream inputStream, Class<T> type) throws IOException {
+		var readerBeans = appCtx.getBeansOfType(BodyReader.class);
+		for (BodyReader<?> reader : readerBeans.values()) {
+			if (reader.canReadAs(type)) {
+				return reader.read(inputStream, type);
+			}
 		}
-
-		EndPoint testGET = endPoints[3];
-		if (testGET.matches(request)) {
-			return controller.testGET(request);
-		}
-
-		EndPoint echoString = endPoints[4];
-		if (echoString.matches(request)) {
-			RequestUriDetail uriDetail = echoString.getRequestUriDetail(request);
-			return controller.echoString(uriDetail.getRequiredPathValue("{string}"));
-		}
-
-		return HttpResponse.notFound();
+		throw new RuntimeException("No reader found for type: " + type);
 	}
 
 }
