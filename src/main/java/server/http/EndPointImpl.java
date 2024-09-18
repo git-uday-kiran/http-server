@@ -33,6 +33,7 @@ public class EndPointImpl implements EndPoint {
 		queries.addAll(queryKeys(handlerMethod.getParameters()));
 	}
 
+	@Override
 	public boolean matches(HttpRequest request) {
 		String requestUri = request.getUri();
 		if (requestUri == null || !requestUri.startsWith("/")) return false;
@@ -50,6 +51,7 @@ public class EndPointImpl implements EndPoint {
 		return matches(paths, queries);
 	}
 
+	@Override
 	public boolean matches(List<String> matchPaths, Set<String> matchQueries) {
 		if (paths.size() != matchPaths.size()) return false;
 		if (queries.size() != matchQueries.size()) return false;
@@ -64,7 +66,7 @@ public class EndPointImpl implements EndPoint {
 		return queries.equals(matchQueries);
 	}
 
-	private Set<String> queryKeys(Parameter[] parameters) {
+	private Set<String> queryKeys(Parameter... parameters) {
 		Set<String> queryKeys = new HashSet<>();
 		for (Parameter parameter : parameters) {
 			if (parameter.isAnnotationPresent(QueryParam.class)) {
@@ -132,6 +134,7 @@ public class EndPointImpl implements EndPoint {
 		return (start <= end) ? path.substring(start, end + 1) : "";
 	}
 
+	@Override
 	public RequestUriDetail getRequestUriDetail(HttpRequest request) {
 		String requestUri = request.getUri();
 
@@ -166,7 +169,7 @@ public class EndPointImpl implements EndPoint {
 
 	@Override
 	public String toString() {
-		return "EndPointV2{" + "paths=" + paths + ", queries=" + queries + '}';
+		return "EndPoint{" + "paths=" + paths + ", queries=" + queries + '}';
 	}
 
 }
